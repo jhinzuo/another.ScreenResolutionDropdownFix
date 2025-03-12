@@ -1,3 +1,8 @@
+
+# This is a modified code for another issue called where the Resolution Dropdown doesnt work. I think its due to aarch64 to x86/x64 emulation since compatibility mode fixes that issues but makes performance hit for 75%.
+
+# The Error ingame is something like:  Interface/FrameXML\OptionsFrame.lua:294: attempt to perform arithmetic on local "xindex" (a nil value)
+# #########################################################################
 # Screen Resolution Dropdown Fix
 TL;DR: Don’t bother installing this unless you’re getting a Lua error when opening the Video Options dialog and having issues selecting screen resolutions as a result.
 
