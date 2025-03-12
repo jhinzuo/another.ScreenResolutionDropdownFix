@@ -15,10 +15,6 @@ local whitelist = {
 -- MAKE CHANGES ABOVE HERE
 --##########################################################################--
 
-
-
-
-
 --##########################################################################--
 -- ACTUAL CODE BELOW HERE - DO NOT EDIT unless you know what you're doing
 --##########################################################################--
@@ -31,7 +27,6 @@ local resolutionsToOriginalIds = {}
 local originalIdsToMyIds = {}
 local allowedResolutions
 
-
 --//////////////////////////////////////////////////////////////////////////--
 -- Helpers
 --//////////////////////////////////////////////////////////////////////////--
@@ -39,20 +34,19 @@ local allowedResolutions
 --**********************************************************************--
 -- Helper function for wiping a table
 local function tclear(tbl)
-	if type(tbl) ~= "table" then
-		return
-	end
+    if type(tbl) ~= "table" then
+        return
+    end
 
-	-- Clear array-type tables first so table.insert will start over at 1
-	for i = getn(tbl), 1, -1 do
+    -- Clear array-type tables first so table.insert will start over at 1
+    for i = getn(tbl), 1, -1 do
         tremove(tbl, i)
     end
 
-	-- Remove any remaining associative table elements
-	-- Credit: https://stackoverflow.com/a/27287723
-	for k in next, tbl do rawset(tbl, k, nil) end
+    -- Remove any remaining associative table elements
+    -- Credit: https://stackoverflow.com/a/27287723
+    for k in next, tbl do rawset(tbl, k, nil) end
 end
-
 
 --**********************************************************************--
 -- Add the given resolution to our list, recording the necessary ID information
@@ -65,7 +59,6 @@ local function addResolution(resolution, id)
     end
 end
 
-
 --//////////////////////////////////////////////////////////////////////////--
 -- Main functionality
 --//////////////////////////////////////////////////////////////////////////--
@@ -73,7 +66,6 @@ end
 --**********************************************************************--
 -- Produce the list of filtered resolutions and populate our lookup tables
 local function GetFilteredScreenResolutions()
-
     -- Get the full list of resolutions
     local availableResolutions = {GetScreenResolutions()}
 
@@ -84,7 +76,6 @@ local function GetFilteredScreenResolutions()
 
     -- Whitelist mode
     if whitelistMode then
-
         -- Set whitelist resolutions as table keys so it's easy to determine what's allowed
         if allowedResolutions == nil then
             allowedResolutions = {}
@@ -100,7 +91,6 @@ local function GetFilteredScreenResolutions()
             end
         end
 
-
     -- Only the top 32 resolutions
     else
         for id = math.max(getn(availableResolutions) - UIDROPDOWNMENU_MAXBUTTONS + 1, 1), getn(availableResolutions) do
@@ -112,7 +102,6 @@ local function GetFilteredScreenResolutions()
     return unpack(resolutionList)
 end
 
-
 --**********************************************************************--
 -- Print list of resolutions to chat
 local function PrintResolutions(filtered)
@@ -123,7 +112,6 @@ local function PrintResolutions(filtered)
     end
 end
 
-
 --**********************************************************************--
 -- Register slash commands
 SLASH_PrintOriginalResolutions1 = "/listres"
@@ -131,8 +119,6 @@ SlashCmdList["PrintOriginalResolutions"] = function() PrintResolutions(false) en
 
 SLASH_PrintFilteredResolutions1 = "/listfres"
 SlashCmdList["PrintFilteredResolutions"] = function() PrintResolutions(true) end
-
-
 
 --//////////////////////////////////////////////////////////////////////////--
 -- HideScriptErrorFrameAtLogin functionality
@@ -142,7 +128,6 @@ if (ScriptErrors:IsShown()) then
     DEFAULT_CHAT_FRAME:AddMessage("Script error at login: " .. e, 1, 0.578, 0)
     ScriptErrors:Hide()
 end
-
 
 --//////////////////////////////////////////////////////////////////////////--
 -- Hacks for Video Options dialog
@@ -170,12 +155,42 @@ end
 --**********************************************************************--
 -- Update the functions for the screen resolution dropdown to use our filtered list
 function OptionsFrameResolutionDropDown_OnLoad()
-	UIDropDownMenu_Initialize(this, OptionsFrameResolutionDropDown_Initialize)
-	-- This line has to be changed so the appropriate current resolution will be selected
+    UIDropDownMenu_Initialize(this, OptionsFrameResolutionDropDown_Initialize)
+    -- This line has to be changed so the appropriate current resolution will be selected
     UIDropDownMenu_SetSelectedID(this, originalIdsToMyIds[GetCurrentResolution()], 1)
-	UIDropDownMenu_SetWidth(90, OptionsFrameResolutionDropDown)
+    UIDropDownMenu_SetWidth(90, OptionsFrameResolutionDropDown)
 end
 function OptionsFrameResolutionDropDown_Initialize()
-	-- Use the filtered list of resolutions instead of the original
+    -- Use the filtered list of resolutions instead of the original
     OptionsFrameResolutionDropDown_LoadResolutions(GetFilteredScreenResolutions())
 end
+
+--//////////////////////////////////////////////////////////////////////////--
+-- Fix for nil xindex in OptionsFrame.lua
+--//////////////////////////////////////////////////////////////////////////--
+
+-- Hook the problematic function to fix the nil xindex issue
+local function FixXIndexError()
+    -- Save the original function
+    local originalOptionsFrame_OnEvent = OptionsFrame_OnEvent
+
+    -- Replace the original function with a new one
+    function OptionsFrame_OnEvent(event, ...)
+        -- Call the original function first
+        originalOptionsFrame_OnEvent(event, ...)
+
+        -- Add your fix for xindex
+        if xindex == nil then
+            xindex = 0 -- Default value
+        end
+    end
+end
+
+-- Load the fix when the addon is loaded
+local frame = CreateFrame("Frame")
+frame:RegisterEvent("ADDON_LOADED")
+frame:SetScript("OnEvent", function(self, event, addonName)
+    if addonName == "!OptionsFrameFix" then
+        FixXIndexError()
+    end
+end)
