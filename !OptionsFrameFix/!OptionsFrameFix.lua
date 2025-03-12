@@ -3,12 +3,24 @@
 --##########################################################################--
 
 -- Set true to use whitelisting instead of simply displaying the 32 highest resolutions (as limited by UIDROPDOWNMENU_MAXBUTTONS)
-local whitelistMode = false
+local whitelistMode = true
 
 -- Edit this list to filter the available resolutions when whitelistMode = true
 local whitelist = {
-    "1024x768",
-    "1400x900",
+    "1920x1080",
+    "1600x900",
+    "1280x720",
+    "2340x1080",
+    "2106x972",
+    "1872x864",
+    "1638x756",
+    "1404x648",
+    "1170x540",
+    "936x432",
+    "792x324",
+    "1366x768",
+    "1024x768",  -- Your original resolutions
+    "1400x900",  -- Your original resolutions
 }
 
 --##########################################################################--
